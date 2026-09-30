@@ -1,0 +1,365 @@
+:root {
+  --bg: #eceae6;
+  --ink: #26241f;
+  --muted: #8a857c;
+  --card: rgba(255, 255, 255, 0.86);
+  --line: rgba(38, 36, 31, 0.1);
+  --accent: #2f6fed;
+  --accent-soft: rgba(47, 111, 237, 0.12);
+  --danger: #d9463b;
+  --radius: 12px;
+  --shadow: 0 6px 24px rgba(30, 28, 24, 0.08), 0 1px 3px rgba(30, 28, 24, 0.06);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font: 13px/1.4 Inter, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+#app { position: fixed; inset: 0; }
+#view { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; }
+
+button, select, input { font: inherit; color: inherit; }
+
+button {
+  border: 0;
+  background: transparent;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+button:hover { background: rgba(0, 0, 0, 0.05); }
+button.active { background: var(--accent-soft); color: var(--accent); }
+button.danger:hover { color: var(--danger); background: rgba(217, 70, 59, 0.08); }
+
+/* Cajas flotantes */
+.box {
+  background: var(--card);
+  backdrop-filter: blur(12px);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* Todas las cajas de arriba y abajo miden lo mismo: 4 px de margen + botones de 40 px */
+:root { --bar-h: 48px; --cat-h: 124px; }
+.common, .views, .floors, .modes { display: flex; align-items: center; gap: 2px; padding: 4px; height: var(--bar-h); }
+.vsep { width: 1px; height: 24px; background: var(--line); margin: 0 3px; flex: none; }
+button.icon { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; border-radius: 10px; flex: none; }
+button.icon svg, .views svg, .cat-tab svg { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Abajo a la izquierda: Construir / Amueblar */
+.modes { flex: none; }
+.modes button { height: 40px; padding: 0 16px; border-radius: 10px; color: var(--muted); font-weight: 500; }
+.modes button.active, .modes button.active:hover { background: var(--ink); color: #fff; }
+
+/* Bloques centrados de ancho fijo (arriba y abajo) */
+:root { --col-w: min(920px, calc(100% - 24px)); --col-edge: max(12px, calc((100% - 920px) / 2)); }
+.top {
+  position: absolute;
+  left: 50%; top: 12px;
+  transform: translateX(-50%);
+  width: var(--col-w);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  z-index: 6;
+  pointer-events: none;
+}
+.top > * { pointer-events: auto; }
+
+/* Bloque inferior centrado y de ancho fijo: catálogo y, debajo, modo · ayuda · planta */
+.bottom {
+  position: absolute;
+  left: 50%; bottom: 12px;
+  transform: translateX(-50%);
+  width: var(--col-w);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 5;
+  pointer-events: none;
+}
+.bottom > *, .bottom-row > * { pointer-events: auto; }
+.bottom-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.bottom-row .hint { pointer-events: none; }
+
+/* Catálogo */
+.catalog {
+  height: var(--cat-h);
+  padding: 6px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 5;
+}
+.cat-tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; flex: none; border-bottom: 1px solid var(--line); padding-bottom: 5px; }
+.cat-tabs::-webkit-scrollbar, .cat-items::-webkit-scrollbar { display: none; }
+.cat-tab { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border-radius: 8px; color: var(--muted); flex: none; }
+.cat-tab svg { width: 16px; height: 16px; }
+.cat-tab span { font-size: 12.5px; }
+.cat-tab.active { background: rgba(0, 0, 0, 0.05); color: var(--ink); }
+.cat-tab.active.using { background: var(--accent-soft); color: var(--accent); }
+.cat-items { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; flex: 1; align-items: stretch; }
+.cat-item {
+  flex: none;
+  width: 92px;
+  padding: 2px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1.5px solid transparent;
+}
+.cat-item:hover { background: #fff; border-color: var(--line); }
+.cat-item.active { background: #fff; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.cat-item img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
+
+/* Arriba a la derecha: Seleccionar · Borrar · Deshacer · Rehacer · ⚙ */
+.common { flex: none; }
+
+/* Arriba a la izquierda: marca + modos de vista */
+.views { flex: none; }
+.views .brand { padding: 0 8px 0 10px; font-weight: 700; font-size: 14px; letter-spacing: -0.02em; }
+.views .brand::first-letter { color: var(--accent); }
+.views button { display: inline-flex; align-items: center; gap: 7px; height: 40px; padding: 0 12px 0 10px; border-radius: 10px; }
+.views button span { font-size: 12.5px; }
+
+/* Abajo a la derecha: planta + paredes */
+.floors { flex: none; }
+.level-label { font-weight: 600; padding: 0 4px; min-width: 64px; text-align: center; font-variant-numeric: tabular-nums; }
+
+/* Menú de ajustes */
+.menu-wrap { position: relative; }
+.menu {
+  position: absolute;
+  right: -4px; top: calc(100% + 10px);
+  min-width: 250px;
+  padding: 6px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(30, 28, 24, 0.16), 0 1px 3px rgba(30, 28, 24, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+.menu[hidden] { display: none; }
+.menu button { display: flex; justify-content: space-between; text-align: left; padding: 8px 10px; }
+.menu .k { color: var(--muted); font-size: 11px; }
+.menu .sep { height: 1px; background: var(--line); margin: 4px 2px; }
+.menu-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 4px 10px; }
+.mini-seg { display: flex; padding: 2px; background: rgba(0, 0, 0, 0.05); border-radius: 8px; }
+.mini-seg button { padding: 4px 9px; border-radius: 6px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.mini-seg button.active { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }
+
+/* Ajustes del proyecto (ventana) */
+#project-dialog { width: min(340px, calc(100% - 32px)); }
+.project-body .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 8px 0; }
+.project-body .row label { color: var(--muted); }
+.project-body input[type="number"] { width: 80px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; text-align: right; }
+.project-body input[type="range"] { width: 100%; accent-color: var(--accent); }
+.project-body p { color: var(--muted); font-size: 12px; }
+
+/* Panel de propiedades */
+.panel {
+  position: absolute;
+  right: var(--col-edge); top: 72px;
+  width: 250px;
+  /* no pisa el catálogo de abajo */
+  max-height: calc(100% - 72px - 12px - var(--bar-h) - 8px - var(--cat-h) - 16px);
+  overflow-y: auto;
+  z-index: 4;
+  padding: 12px;
+  background: var(--card);
+  backdrop-filter: blur(12px);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.panel:empty { display: none; }
+.panel h3 { margin: 0 0 10px; font-size: 13px; font-weight: 600; }
+.panel .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 6px 0; }
+.panel .row label { color: var(--muted); }
+.panel .row .val { font-variant-numeric: tabular-nums; }
+.panel input[type="number"] {
+  width: 80px;
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  text-align: right;
+}
+.panel input[type="range"] { width: 100%; accent-color: var(--accent); }
+.panel .actions { display: flex; gap: 6px; margin-top: 10px; }
+.panel .actions button { flex: 1; border: 1px solid var(--line); background: #fff; }
+.panel .actions.stack { flex-direction: column; }
+.panel .actions button.danger { color: var(--danger); }
+.panel p { margin: 6px 0; color: var(--muted); }
+
+/* Ayuda */
+.hint {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 5px 12px;
+  background: rgba(38, 36, 31, 0.72);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+.hint kbd { font: inherit; opacity: 0.7; }
+
+.measure {
+  position: absolute;
+  pointer-events: none;
+  padding: 2px 6px;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  transform: translate(12px, -28px);
+  display: none;
+}
+
+/* Panel de pintura */
+.panel .seg-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.panel .seg-label { width: 52px; flex: none; color: var(--muted); font-size: 12px; }
+.panel .seg { display: flex; gap: 4px; flex: 1; }
+.panel .seg button { flex: 1; }
+.panel .seg:has(> button:nth-child(4)) { display: grid; grid-template-columns: 1fr 1fr; } /* 4+ opciones: dos columnas */
+.panel .finishes { margin-top: 10px; }
+.panel .seg button { border: 1px solid var(--line); background: #fff; font-size: 12px; padding: 6px; white-space: normal; }
+.panel .seg button.active, .panel .finishes button.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.panel .finishes { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 10px; }
+.panel .finishes button { display: flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: #fff; font-size: 12px; padding: 5px 6px; }
+.panel .chip { width: 18px; height: 18px; border-radius: 4px; border: 1px solid var(--line); flex: none; }
+.panel .palette { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
+.panel .finishes + .palette { margin-top: 0; }
+.panel .swatch {
+  aspect-ratio: 1;
+  padding: 0;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.panel .swatch.active { outline: 2px solid var(--accent); outline-offset: 1px; }
+.panel .swatch.custom { background: conic-gradient(#e66, #ec6, #6c6, #6ce, #66e, #e6e, #e66); }
+.panel .swatch.custom input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+.panel .actions button.active { background: rgba(217, 70, 59, 0.08); }
+
+/* Plano 2D: ocupa el lienzo, bajo las cajas flotantes */
+.plan { position: absolute; inset: 0; z-index: 1; background: var(--bg); }
+.plan[hidden] { display: none; }
+#plan-svg { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+#plan-svg:active { cursor: grabbing; }
+.panel .actions button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* Informe de estructura */
+.panel .notes li { padding: 6px 0; border-top: 1px solid var(--line); color: var(--ink); font-size: 12px; }
+.panel .legend { display: flex; gap: 12px; font-size: 12px; color: var(--muted); margin: 6px 0; }
+.panel .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.panel .disclaimer { font-size: 11px; }
+.panel label.check { display: flex; align-items: center; gap: 6px; color: var(--ink); margin: 8px 0; cursor: pointer; }
+
+@media print {
+  @page { size: landscape; margin: 10mm; }
+  #app > *:not(#plan) { display: none !important; }
+  .plan { position: static; background: #fff; }
+  #plan-svg { width: 100%; height: 180mm; }
+}
+
+/* Diálogo de proyecto nuevo */
+dialog {
+  border: 0;
+  border-radius: 16px;
+  padding: 20px;
+  width: min(360px, calc(100% - 32px));
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 20px 60px rgba(30, 28, 24, 0.25);
+}
+dialog::backdrop { background: rgba(38, 36, 31, 0.3); backdrop-filter: blur(2px); }
+dialog h3 { margin: 0 0 14px; font-size: 15px; }
+dialog .group-title { color: var(--muted); margin-bottom: 6px; }
+dialog .field-group { margin-bottom: 14px; }
+dialog .dims { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+dialog .dims label { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+dialog .dims input {
+  width: 64px;
+  padding: 5px 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  text-align: right;
+  color: var(--ink);
+}
+dialog .unit { color: var(--muted); }
+dialog .choice { display: flex; align-items: center; gap: 8px; margin: 8px 0; cursor: pointer; }
+dialog .base-fields { padding: 2px 0 2px 24px; }
+dialog .base-fields.disabled { opacity: 0.4; pointer-events: none; }
+dialog .note { color: var(--muted); font-size: 12px; margin: 6px 0; }
+dialog menu { display: flex; flex-direction: row-reverse; justify-content: flex-start; gap: 8px; padding: 0; margin: 16px 0 0; }
+dialog menu button { border: 1px solid var(--line); padding: 7px 14px; }
+dialog menu button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+dialog menu button.primary:hover { background: #2a63d4; }
+
+/* Vista interior */
+.walk-hud, .crosshair { display: none; }
+body.walk-mode .walk-hud {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  padding: 6px 6px 6px 16px;
+  background: rgba(38, 36, 31, 0.82);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+body.walk-mode .walk-hud kbd { font: inherit; opacity: 0.7; }
+body.walk-mode .walk-hud button { background: #fff; color: var(--ink); border-radius: 999px; padding: 5px 12px; }
+body.walk-mode .crosshair {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+body.walk-mode #view { cursor: grab; }
+
+/* Qué se ve en cada modo de vista (body[data-view]) */
+body[data-view='render'] :is(.common, .catalog, .modes, .panel, .floors, .measure) { display: none; }
+body[data-view='plan'] :is(.common, .catalog, .modes, .hint) { visibility: hidden; }
+body[data-view='plan'] .catalog { display: none; }
+body[data-view='plan'] .panel { top: 72px; max-height: calc(100% - 150px); }
+body[data-view='walk'] :is(.common, .catalog, .modes, .panel, .floors, .hint) { display: none; }
+
+/* Pantallas estrechas */
+@media (max-width: 760px) {
+  .hint { display: none; }
+  .cat-tab span { display: none; }
+}
+@media (max-width: 760px) {
+  .views .brand, .views button span { display: none; }
+  .panel { width: 210px; }
+}

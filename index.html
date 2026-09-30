@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Planito</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="view"></canvas>
+
+      <!-- Arriba, centrado y de ancho fijo (igual que abajo): vistas · acciones comunes -->
+      <div class="top" id="top">
+        <!-- Marca + modos de vista -->
+        <div class="views box" id="views">
+          <span class="brand">Planito</span>
+          <div class="vsep"></div>
+          <button data-view="3d" class="active" title="Vista 3D para construir">
+            <svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" /><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" /></svg><span>3D</span>
+          </button>
+          <button data-view="render" title="Render: la casa terminada (P)">
+            <svg viewBox="0 0 24 24"><path d="M11 3l1.9 5.1L18 10l-5.1 1.9L11 17l-1.9-5.1L4 10l5.1-1.9z" /><path d="M18.5 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" /></svg><span>Render</span>
+          </button>
+          <button data-view="plan" title="Plano 2D con cotas (L)">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1" /><path d="M3 12h8V4M11 16v4M15 12h6" /></svg><span>Plano</span>
+          </button>
+          <button data-view="walk" title="Paseo virtual por dentro (I)">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2" /><path d="M12 7.5v7M8 11.5l4-2.5 4 2.5M9.5 21l2.5-6.5 2.5 6.5" /></svg><span>Paseo</span>
+          </button>
+        </div>
+        <!-- Acciones comunes a los dos modos -->
+        <div class="common box" id="common">
+          <button class="icon" data-tool="select" title="Seleccionar (V)">
+            <svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z" /></svg>
+          </button>
+          <button class="icon" data-tool="erase" title="Borrar (X)">
+            <svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" /></svg>
+          </button>
+          <div class="vsep"></div>
+          <button class="icon" data-action="undo" title="Deshacer (Cmd/Ctrl+Z)">
+            <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 010 11H11" /></svg>
+          </button>
+          <button class="icon" data-action="redo" title="Rehacer (Cmd/Ctrl+Shift+Z)">
+            <svg viewBox="0 0 24 24"><path d="M15 14l5-5-5-5" /><path d="M20 9H9.5a5.5 5.5 0 000 11H13" /></svg>
+          </button>
+          <div class="vsep"></div>
+          <div class="menu-wrap">
+            <button class="icon" id="btn-file" title="Ajustes y proyecto"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z" /></svg></button>
+            <div class="menu" id="file-menu" hidden>
+              <button data-action="project">Proyecto… <span class="k">alturas, solar</span></button>
+              <div class="menu-row">
+                <span>Rejilla</span>
+                <div class="mini-seg" id="snap-seg">
+                  <button data-snap="0.25">0,25</button><button data-snap="0.5" class="active">0,5</button><button data-snap="1">1 m</button>
+                </div>
+              </div>
+              <div class="sep"></div>
+              <button data-action="clear">Nuevo proyecto…</button>
+              <button data-action="import-json">Abrir… <span class="k">.json</span></button>
+              <button data-action="export-json">Guardar <span class="k">.json</span></button>
+              <button data-action="example">Cargar casa de ejemplo</button>
+              <div class="sep"></div>
+              <button data-action="export-glb">Exportar modelo 3D <span class="k">.glb</span></button>
+              <button data-action="screenshot">Guardar captura <span class="k">.png</span></button>
+            </div>
+          </div>
+          <input type="file" id="file-input" accept=".json,application/json" hidden />
+        </div>
+      </div>
+
+      <!-- Abajo, centrado y de ancho fijo: catálogo y, debajo, modo · ayuda · planta -->
+      <div class="bottom" id="bottom">
+        <!-- Catálogo en dos niveles (pestañas + miniaturas) -->
+        <div class="catalog box" id="catalog"></div>
+        <div class="bottom-row">
+          <!-- Construir / Amueblar -->
+          <div class="modes box">
+            <button data-action="mode-build" class="active" title="Levantar la estructura">Construir</button>
+            <button data-action="mode-furnish" title="Colocar muebles">Amueblar</button>
+          </div>
+          <div class="hint" id="hint"></div>
+          <!-- Planta y paredes -->
+          <div class="floors box" id="floors">
+            <button class="icon" data-action="level-down" title="Bajar planta (− / Av Pág)">
+              <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></svg>
+            </button>
+            <div class="level-label" id="level-label">Planta 0</div>
+            <button class="icon" data-action="level-up" title="Subir planta (+ / Re Pág)">
+              <svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" /></svg>
+            </button>
+            <div class="vsep"></div>
+            <button class="icon" id="btn-walls" data-action="walls" title="Paredes visibles (H)"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ajustes del proyecto -->
+      <dialog id="project-dialog">
+        <form method="dialog">
+          <h3>Proyecto</h3>
+          <div class="project-body" id="project-body"></div>
+          <menu><button value="close" class="primary">Listo</button></menu>
+        </form>
+      </dialog>
+
+      <!-- Propiedades -->
+      <aside class="panel" id="panel"></aside>
+
+      <!-- Ayuda -->
+      <div class="measure" id="measure"></div>
+      <div class="walk-hud" id="walk-hud">
+        <span><kbd>W A S D</kbd> andar · <kbd>Arrastrar</kbd> mirar · <kbd>← →</kbd> girar · <kbd>Shift</kbd> correr · las escaleras se suben andando</span>
+        <button data-action="walk-exit">Salir (Esc)</button>
+      </div>
+      <div class="crosshair"></div>
+
+      <!-- Plano 2D: se dibuja en el mismo sitio que el 3D -->
+      <div id="plan" class="plan" hidden>
+        <svg id="plan-svg" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+
+      <!-- Proyecto nuevo -->
+      <dialog id="new-dialog">
+        <form method="dialog">
+          <h3>Proyecto nuevo</h3>
+          <div class="field-group">
+            <div class="group-title">Solar</div>
+            <div class="dims">
+              <label>Ancho <input name="lotW" type="number" value="40" min="10" max="200" step="1" /></label>
+              <span>×</span>
+              <label>Largo <input name="lotD" type="number" value="40" min="10" max="200" step="1" /></label>
+              <span class="unit">m</span>
+            </div>
+          </div>
+          <div class="field-group">
+            <div class="group-title">Altura de techo (igual en todas las plantas)</div>
+            <div class="dims">
+              <label>Suelo a techo <input name="ceil" type="number" value="2.8" min="2.2" max="4.8" step="0.05" /></label>
+              <span class="unit">m</span>
+            </div>
+          </div>
+          <label class="choice"><input type="radio" name="start" value="blank" /> Empezar en blanco</label>
+          <label class="choice"><input type="radio" name="start" value="base" checked /> Empezar con una base</label>
+          <div class="base-fields">
+            <div class="dims">
+              <label>Ancho <input name="baseW" type="number" value="10" min="1" max="200" step="0.5" /></label>
+              <span>×</span>
+              <label>Largo <input name="baseD" type="number" value="8" min="1" max="200" step="0.5" /></label>
+              <span class="unit">m</span>
+            </div>
+            <div class="dims">
+              <label>Altura <input name="baseH" type="number" value="0.5" min="0" max="2" step="0.05" /></label>
+              <span class="unit">m</span>
+            </div>
+            <p class="note snap-info"></p>
+          </div>
+          <p class="note">Puedes deshacerlo con Cmd/Ctrl + Z.</p>
+          <menu>
+            <button value="create" class="primary">Crear</button>
+            <button value="cancel" formnovalidate>Cancelar</button>
+          </menu>
+        </form>
+      </dialog>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
