@@ -1,3 +1,4 @@
+import { inject } from '@vercel/analytics';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -8,6 +9,9 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
 import { Store, emptyProject } from './state.js';
+
+// Initialize Vercel Web Analytics
+inject();
 import { createGridMaterial, LotGrid } from './grid.js';
 import { buildBuilding, disposeTree, setTint, elev, onFoundation, wallInfo, foundationTopGeometry } from './build.js';
 import { Editor } from './editor.js';
